@@ -9,11 +9,17 @@ pops = []
 for i in range(len(output)):    #若有</div>, </p>, <p>, </b>, <b>, </button>, <button>, </li>, </a>, </h1>, </h2>, </h3>, </font>, </span>, <span>, <br>則保留，其餘的刪除
     if output[i].find("</div") == -1 and output[i].find("</p") == -1 and output[i].find("<sup") == -1 and output[i].find("<p") == -1 and output[i].find("</b") == -1 and output[i].find("<b") == -1 and output[i].find("</button") == -1 and output[i].find("<button") == -1 and output[i].find("</li") == -1 and output[i].find("</a") == -1 and output[i].find("<a") == -1 and output[i].find("</h1") == -1 and output[i].find("</h2") and output[i].find("</h3") == -1 and output[i].find("</h4") == -1 and output[i].find("</font") == -1 and output[i].find("</span") == -1 and output[i].find("<span") == -1 and output[i].find("<br") == -1:
         pops.append(i)
-pops.reverse()
-for i in range(len(pops)):
-    output.pop(pops[i])
 
-for i in range(len(output)):    #刪除<span>和<br>、<b>、<p>的屬性內容
+def dopop():
+    global pops
+    pops.reverse()
+    for i in range(len(pops)):
+        output.pop(pops[i])
+    pops = []
+dopop()
+
+
+for i in range(len(output)):    #刪除<span>和<br>、<b>、<p>、<a>、<sup>、<button>的屬性內容和特殊符號
     if output[i].find("<span") != -1:
         temp = output[i].rsplit("<span")
         output[i] = temp[0]
@@ -35,6 +41,10 @@ for i in range(len(output)):    #刪除<span>和<br>、<b>、<p>的屬性內容
     if output[i].find("<p") != -1:
         temp = output[i].rsplit("<p")
         output[i] = temp[0]
+    if output[i].find("{\\") != -1:
+        pops.append(i)
+
+dopop()
 
 for i in range(len(output)):    #刪除剩餘的</部分和空格、換行、特殊符號
     output[i] = output[i].replace("</div","")
@@ -56,20 +66,20 @@ for i in range(len(output)):    #刪除剩餘的</部分和空格、換行、特
     output[i] = output[i].replace("&nbsp;","")
     output[i] = output[i].replace("&times;","")
     output[i] = output[i].replace("\t","")
-    output[i] = output[i].replace("\n","")
+    output[i] = output[i].replace("\n\n\n","\n")
+    output[i] = output[i].replace("\n\n","\n")
+    #output[i] = output[i].replace("\n","")    #換行
     output[i] = output[i].replace("\r","")
     output[i] = output[i].strip(" ")
 
-pops = []                       #刪除陣列內的無意義內容
-for i in range(len(output)):
+for i in range(len(output)):    #刪除陣列內的無意義內容
     if output[i] == ' ' or output[i] == '' or output[i] == '.' or output[i].find("&#") != -1:
         pops.append(i)
-pops.reverse()
-for i in range(len(pops)):
-    output.pop(pops[i])
 
-#sum = "".join(output)          #將陣列結合成單個字串
+dopop()
 
+sum = "".join(output)          #將陣列結合成單個字串
+#print(sum)
 
 print(output)
 i = input("Press Enter to continue:")

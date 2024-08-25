@@ -1,9 +1,31 @@
-import firebase.firebase
 import requests                 #將<div>, <li>, <a>, <h1>, <h2>, <h3>, <span>內的文字print出來的爬蟲
 from firebase import firebase
+import os
 
-text = requests.get('https://zh.wikipedia.org/zh-tw/%E7%B6%B2%E8%B7%AF%E7%88%AC%E8%9F%B2') #爬的網址，可任意更改，這裡用的是：維基百科網路爬蟲頁面
+address = input("input a address:")         #輸入爬的網址，直到網址正確或錯誤10次
+max_try = 10
+try_count = 0
+for _ in range(max_try):
+    try:
+        text = requests.get(address)
+        break 
+    except:
+        try_count+=1
+        if try_count < max_try:
+            address = input("wrong address!\ninput a address:")
+        else:
+            _ = input("out of max try! program shot down!")
+            os._exit()
+
+
+
 output = text.text.rsplit(">")
+
+
+
+
+path = os.path.dirname(os.path.abspath(__file__))
+
 
 pops = []
 for i in range(len(output)):    #若有</div>, </p>, <p>, </b>, <b>, </button>, <button>, </li>, </a>, </h1>, </h2>, </h3>, </font>, </span>, <span>, <br>則保留，其餘的刪除
@@ -66,8 +88,6 @@ for i in range(len(output)):    #刪除剩餘的</部分和空格、換行、特
     output[i] = output[i].replace("&nbsp;","")
     output[i] = output[i].replace("&times;","")
     output[i] = output[i].replace("\t","")
-    output[i] = output[i].replace("\n\n\n","\n")
-    output[i] = output[i].replace("\n\n","\n")
     #output[i] = output[i].replace("\n","")    #換行
     output[i] = output[i].replace("\r","")
     output[i] = output[i].strip(" ")
@@ -78,8 +98,52 @@ for i in range(len(output)):    #刪除陣列內的無意義內容
 
 dopop()
 
-sum = "".join(output)          #將陣列結合成單個字串
-#print(sum)
+sum = " ".join(output)          #將陣列結合成單個字串
 
-print(output)
+
+sum  = sum.replace("  "," ")
+sum  = sum.replace("\n ","\n")
+sum  = sum.replace(" \n","\n")
+sum  = sum.replace("\n\n\n","\n") #刪除多餘換行
+sum  = sum.replace("\n\n","\n")
+sum  = sum.replace("\n\n","\n")
+sum  = sum.replace("\n\n","\n")
+
+if sum.startswith("\n"):
+    sum = sum.replace("\n","",1)
+
+print(sum)
+
+'''
+fdb = firebase.FirebaseApplication('https://...', None) 
+fdb.post('/',sum)
+'''
+
+
+
+if not(os.path.exists(path + "\\output")):   #若不存在文件夾建立文件夾
+    os.mkdir(path + "\\output")
+
+path = path + "\\output"
+
+file_count = 0
+while True:
+    if file_count == 0:
+        if os.path.exists(path + "\\output.txt"):
+            file_count+=1
+        else:
+            break
+    if(os.path.exists(path + "\\output" + str(file_count+1) + ".txt")):
+        file_count+=1
+    else:
+        break
+if file_count == 0:
+    f = open(path + "\\output.txt", "w", encoding="utf-8")
+else:
+    f = open(path + "\\output" + str(file_count+1) + ".txt", "w", encoding="utf-8") #輸出到txt
+
+f.write(sum)
+f.close()
+
+#print(output)
 i = input("Press Enter to continue:")
